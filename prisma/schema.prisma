@@ -1,0 +1,151 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// schema.prisma
+model Account {
+// CREATE TABLE `Accounts` (
+//   `account_id` int(11) NOT NULL AUTO_INCREMENT,
+//   `account_name` varchar(100) NOT NULL,
+//   `header_url` varchar(200) DEFAULT NULL,
+//   `notes` text,
+//   PRIMARY KEY (`account_id`),
+//   KEY `account_name` (`account_name`)
+// ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=latin1;
+  account_id    Int @id @default(autoincrement()) //int
+  account_name  String @db.VarChar(100) @unique // varchar 100
+  header_url    String? @db.VarChar(200) // varchar 200
+  notes         String? @db.Text // text
+}
+
+
+
+
+model Schedule {
+  // CREATE TABLE `Schedule` (
+  schedule_id      BigInt @id @default(autoincrement())        // int(11) NOT NULL AUTO_INCREMENT,
+  account_id       BigInt          // int(11) NOT NULL,
+  location         String @db.VarChar(50)      // varchar(50) NOT NULL,
+  therapist        String @db.VarChar(50)       // varchar(50) NOT NULL,
+  schedule_date    DateTime           // date DEFAULT NULL,
+  start_time       DateTime         // datetime NOT NULL,
+  end_time         DateTime       // datetime NOT NULL,
+  active_schedule  BigInt @default(1)            // int(11) NOT NULL DEFAULT '1',
+  appointments    Appointment[]
+  //   PRIMARY KEY (`schedule_id`),
+  //   KEY `schedule_date` (`schedule_date`),
+  //   KEY `active_schedule` (`active_schedule`)
+  // ) ENGINE=InnoDB AUTO_INCREMENT=4131 DEFAULT CHARSET=latin1;
+  @@unique([schedule_id, account_id, active_schedule])
+}
+
+model Appointment {
+  appointment_id        BigInt @id @default(autoincrement())            //          int(11) NOT NULL AUTO_INCREMENT,
+  schedule_id           BigInt            //      int(11) NOT NULL,
+  therapist             String? @db.VarChar(50)         //       varchar(50) DEFAULT NULL,
+  appointment_date      DateTime?           //             datetime DEFAULT NULL,
+  appointment_time      String? @db.Char(4)         //               char(4) DEFAULT NULL,
+  length_of_appointment BigInt @default(0)            //                 tinyint(4) DEFAULT '0',
+  client_name           String? @db.VarChar(50)         //         varchar(50) DEFAULT NULL,
+  phone_number          String? @db.VarChar(50)         //           varchar(50) DEFAULT NULL,
+  email_address         String? @db.VarChar(100)         //           varchar(100) DEFAULT NULL,
+  parent_id             BigInt?            //    int(11) DEFAULT NULL,
+  notes                 String? @db.VarChar(200)         //   varchar(200) DEFAULT NULL,
+  Schedule              Schedule? @relation(fields: [schedule_id], references: [schedule_id])
+  // scheduleId            Int?  // relation scalar field  (used in the `@relation` attribute above)
+
+  // PRIMARY KEY (`appointment_id`),
+  // KEY `schedule_id` (`schedule_id`),
+  // KEY `appointment_time` (`appointment_time`)
+  // @@unique([appointment_id, schedule_id, appointment_time])
+}
+
+model User {
+  // CREATE TABLE `Users` (
+  UserId    Int @id @default(autoincrement())  //   `UserId` int(11) NOT NULL AUTO_INCREMENT,
+  Email     String @db.VarChar(100) @unique //   `Email` varchar(100) NOT NULL,
+  Password  String @db.VarChar(50) //   `Password` varchar(50) NOT NULL,
+  //   PRIMARY KEY (`UserId`),
+  //   UNIQUE KEY `Email` (`Email`)
+  // ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+}
+
+
+// CREATE ALGORITHM=UNDEFINED DEFINER=`tycahill`@`%` SQL SECURITY DEFINER VIEW `appointment_count`
+// AS SELECT
+//    `Appointments`.`schedule_id` AS `schedule_id`,
+//    `Appointments`.`parent_id` AS `parent_id`
+// FROM `Appointments` where (`Appointments`.`parent_id` > 0) group by `Appointments`.`parent_id`,`Appointments`.`schedule_id`;
+
+
+// // schema.prisma
+// model Home {
+//   id          String   @id @default(cuid())
+//   image       String?
+//   title       String
+//   description String
+//   price       Float
+//   guests      Int
+//   beds        Int
+//   baths       Int
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+//   owner       User     @relation(fields: [ownerId], references: [id])
+//   ownerId     String
+// }
+
+// model Account {
+//   id                 String  @id @default(cuid())
+//   userId             String
+//   type               String
+//   provider           String
+//   providerAccountId  String
+//   refresh_token      String? @db.Text
+//   access_token       String? @db.Text
+//   expires_at         Int?
+//   token_type         String?
+//   scope              String?
+//   id_token           String? @db.Text
+//   session_state      String?
+//   oauth_token_secret String?
+//   oauth_token        String?
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@unique([provider, providerAccountId])
+// }
+
+// model Session {
+//   id           String   @id @default(cuid())
+//   sessionToken String   @unique
+//   userId       String
+//   expires      DateTime
+//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+// model User {
+//   id            String    @id @default(cuid())
+//   name          String?
+//   email         String?   @unique
+//   emailVerified DateTime?
+//   image         String?
+//   accounts      Account[]
+//   sessions      Session[]
+//   listedHomes   Home[]
+// }
+
+// model VerificationToken {
+//   identifier String
+//   token      String   @unique
+//   expires    DateTime
+
+//   @@unique([identifier, token])
+// }
